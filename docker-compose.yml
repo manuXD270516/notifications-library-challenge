@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  notifications-library:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: notifications-library:1.0.0
+    container_name: notifications-library
+    environment:
+      # Override these with your actual API keys
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-your-sendgrid-api-key}
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY:-your-mailgun-api-key}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-your-twilio-account-sid}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-your-twilio-auth-token}
+      - TWILIO_FROM_NUMBER=${TWILIO_FROM_NUMBER:-+1234567890}
+      - FCM_SERVER_KEY=${FCM_SERVER_KEY:-your-fcm-server-key}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@example.com}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Notifications Library}
+    volumes:
+      # Mount a volume if you want to persist data or add custom examples
+      - ./examples:/app/examples
+    stdin_open: true
+    tty: true

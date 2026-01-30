@@ -36,6 +36,8 @@ This library provides a unified abstraction for sending notifications across dif
 
 ## Installation
 
+### Option 1: Maven Dependency (Recommended for Production)
+
 Add the following dependency to your `pom.xml`:
 
 ```xml
@@ -44,6 +46,33 @@ Add the following dependency to your `pom.xml`:
     <artifactId>notifications-library</artifactId>
     <version>1.0.0</version>
 </dependency>
+```
+
+### Option 2: Build from Source
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd notiicactions-library
+
+# Build with Maven (requires JDK 21+)
+mvn clean install -s settings.xml
+
+# The JAR will be available in target/notifications-library-1.0.0.jar
+```
+
+### Option 3: Docker (No JDK Required)
+
+```bash
+# Build the Docker image
+docker-compose build
+
+# Run the container
+docker-compose up
+
+# Or use Docker directly
+docker build -t notifications-library:1.0.0 .
+docker run -it notifications-library:1.0.0
 ```
 
 ## Quick Start
@@ -136,19 +165,104 @@ src/main/java/com/novacomp/notifications/
 - **Factory Pattern**: For creating channel instances
 - **Adapter Pattern**: For provider integrations
 
-## Testing
+## Local Development & Testing
 
-Run the test suite:
+### Prerequisites
+
+- **JDK 21 or higher** (required for compilation)
+- **Maven 3.6+** (for building)
+- **Docker** (optional, for containerized deployment)
+
+### Building the Project
 
 ```bash
-mvn test
+# Clean and build
+mvn clean package -s settings.xml
+
+# Build without running tests
+mvn clean package -DskipTests -s settings.xml
+
+# Install to local Maven repository
+mvn clean install -s settings.xml
 ```
 
-Run with coverage:
+### Running Tests
+
+The project includes comprehensive unit tests covering all major components.
 
 ```bash
-mvn clean verify
+# Run all tests
+mvn test -s settings.xml
+
+# Run specific test class
+mvn test -Dtest=NotificationServiceTest -s settings.xml
+
+# Run with coverage report
+mvn clean verify -s settings.xml
 ```
+
+**Note**: Tests require JDK (not just JRE) for compilation. If you only have JRE installed, you can:
+1. Install JDK 21+
+2. Use Docker to build and test (see Docker section)
+3. Review the test source code in `src/test/java/`
+
+### Running Examples
+
+The `examples/` directory contains usage examples:
+
+```bash
+# View the example code
+cat examples/NotificationExamples.java
+
+# To run examples (after building):
+# 1. Set your API keys as environment variables
+export SENDGRID_API_KEY="your-key"
+export TWILIO_ACCOUNT_SID="your-sid"
+export TWILIO_AUTH_TOKEN="your-token"
+
+# 2. Compile and run (requires JDK)
+javac -cp "target/notifications-library-1.0.0.jar:." examples/NotificationExamples.java
+java -cp "target/notifications-library-1.0.0.jar:examples" NotificationExamples
+```
+
+### Docker Development
+
+Use Docker for a complete development environment without installing Java locally:
+
+```bash
+# Build the image
+docker-compose build
+
+# Run interactive shell in container
+docker-compose run --rm notifications-library /bin/bash
+
+# Inside container, you have access to:
+# - Compiled library: /app/notifications-library.jar
+# - Source code: /app/src/
+# - Examples: /app/examples/
+
+# Build inside container
+docker-compose run --rm notifications-library mvn clean package -s settings.xml
+```
+
+### IDE Setup
+
+#### IntelliJ IDEA
+1. Open project from `pom.xml`
+2. Configure Maven settings to use `settings.xml`
+3. Ensure JDK 21+ is configured
+4. Enable annotation processing for Lombok
+
+#### Eclipse
+1. Import as Maven project
+2. Configure Maven settings file
+3. Install Lombok plugin
+4. Set compiler compliance to Java 21
+
+#### VS Code
+1. Install Java Extension Pack
+2. Open project folder
+3. Configure `settings.xml` in Maven extension settings
 
 ## Error Handling
 
