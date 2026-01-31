@@ -371,6 +371,25 @@ Contributions are welcome! Please read our contributing guidelines.
 
 MIT License - see LICENSE file for details.
 
+## Documentation
+
+For detailed documentation, see the `docs/` folder:
+
+- **[Architecture Guide](docs/ARCHITECTURE.md)** - Clean Architecture, design patterns, SOLID principles
+- **[Examples](docs/EXAMPLES.md)** - Complete usage examples for all channels and providers
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Installation, troubleshooting, and deployment strategies
+- **[Technical Guide](docs/TECHNICAL_GUIDE.md)** - Consolidated technical reference with Java 21 features
+- **[Documentation Access](docs/DOCUMENTATION_ACCESS.md)** - Guide to all available documentation
+
+### Additional Documentation
+
+For comprehensive documentation including testing guides, refactoring details, and analysis:
+
+```bash
+git checkout docs/complete-documentation
+cd docs/
+```
+
 ## Support
 
 For questions and support, please open an issue on GitHub.
