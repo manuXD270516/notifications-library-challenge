@@ -22,10 +22,10 @@ class NotificationResultTest {
         NotificationResult result = NotificationResult.success(channel, messageId);
         
         // Then
-        assertTrue(result.isSuccess());
-        assertEquals(channel, result.getChannel());
-        assertEquals(messageId, result.getMessageId());
-        assertNull(result.getErrorMessage());
+        assertTrue(result.success());
+        assertEquals(channel, result.channel());
+        assertEquals(messageId, result.messageId());
+        assertNull(result.errorMessage());
         assertNull(result.getError());
         assertNotNull(result.getTimestamp());
     }
@@ -41,10 +41,10 @@ class NotificationResultTest {
         NotificationResult result = NotificationResult.failure(channel, errorMessage);
         
         // Then
-        assertFalse(result.isSuccess());
-        assertEquals(channel, result.getChannel());
-        assertEquals(errorMessage, result.getErrorMessage());
-        assertNull(result.getMessageId());
+        assertFalse(result.success());
+        assertEquals(channel, result.channel());
+        assertEquals(errorMessage, result.errorMessage());
+        assertNull(result.messageId());
         assertNotNull(result.getTimestamp());
     }
     
@@ -59,11 +59,11 @@ class NotificationResultTest {
         NotificationResult result = NotificationResult.failure(channel, exception);
         
         // Then
-        assertFalse(result.isSuccess());
-        assertEquals(channel, result.getChannel());
-        assertEquals("Connection timeout", result.getErrorMessage());
+        assertFalse(result.success());
+        assertEquals(channel, result.channel());
+        assertEquals("Connection timeout", result.errorMessage());
         assertEquals(exception, result.getError());
-        assertNull(result.getMessageId());
+        assertNull(result.messageId());
         assertNotNull(result.getTimestamp());
     }
     
@@ -78,8 +78,8 @@ class NotificationResultTest {
             .build();
         
         // Then
-        assertTrue(result.isSuccess());
-        assertEquals(NotificationChannel.EMAIL, result.getChannel());
-        assertEquals("msg-456", result.getMessageId());
+        assertTrue(result.success());
+        assertEquals(NotificationChannel.EMAIL, result.channel());
+        assertEquals("msg-456", result.messageId());
     }
 }

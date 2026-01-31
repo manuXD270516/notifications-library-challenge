@@ -84,10 +84,10 @@ class PushNotificationChannelTest {
         
         // Then
         assertNotNull(result);
-        assertTrue(result.isSuccess());
-        assertEquals(NotificationChannel.PUSH, result.getChannel());
-        assertNotNull(result.getMessageId());
-        assertTrue(result.getMessageId().startsWith("fcm-"));
+        assertTrue(result.success());
+        assertEquals(NotificationChannel.PUSH, result.channel());
+        assertNotNull(result.messageId());
+        assertTrue(result.messageId().startsWith("fcm-"));
     }
     
     @Test

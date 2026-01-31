@@ -85,10 +85,10 @@ class SmsNotificationChannelTest {
         
         // Then
         assertNotNull(result);
-        assertTrue(result.isSuccess());
-        assertEquals(NotificationChannel.SMS, result.getChannel());
-        assertNotNull(result.getMessageId());
-        assertTrue(result.getMessageId().startsWith("twilio-"));
+        assertTrue(result.success());
+        assertEquals(NotificationChannel.SMS, result.channel());
+        assertNotNull(result.messageId());
+        assertTrue(result.messageId().startsWith("twilio-"));
     }
     
     @Test

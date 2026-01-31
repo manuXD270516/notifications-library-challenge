@@ -25,11 +25,11 @@ class NotificationRequestTest {
         
         // Then
         assertNotNull(request);
-        assertEquals(NotificationChannel.EMAIL, request.getChannel());
-        assertEquals("user@example.com", request.getRecipient());
-        assertEquals("Test Subject", request.getSubject());
-        assertEquals("Test message", request.getMessage());
-        assertEquals(NotificationPriority.HIGH, request.getPriority());
+        assertEquals(NotificationChannel.EMAIL, request.channel());
+        assertEquals("user@example.com", request.recipient());
+        assertEquals("Test Subject", request.subject());
+        assertEquals("Test message", request.message());
+        assertEquals(NotificationPriority.HIGH, request.priority());
         assertTrue(request.isValid());
     }
     
@@ -44,7 +44,7 @@ class NotificationRequestTest {
             .build();
         
         // Then
-        assertEquals(NotificationPriority.NORMAL, request.getPriority());
+        assertEquals(NotificationPriority.NORMAL, request.priority());
     }
     
     @Test

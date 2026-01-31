@@ -87,8 +87,8 @@ class NotificationServiceTest {
         
         // Then
         assertNotNull(result);
-        assertTrue(result.isSuccess());
-        assertEquals("msg-123", result.getMessageId());
+        assertTrue(result.success());
+        assertEquals("msg-123", result.messageId());
         verify(emailChannel).send(request);
         verify(emailChannel).validate(request);
     }
@@ -184,8 +184,8 @@ class NotificationServiceTest {
         
         // Then
         assertNotNull(result);
-        assertFalse(result.isSuccess());
-        assertEquals(NotificationChannel.EMAIL, result.getChannel());
+        assertFalse(result.success());
+        assertEquals(NotificationChannel.EMAIL, result.channel());
         assertNotNull(result.getError());
     }
 }
