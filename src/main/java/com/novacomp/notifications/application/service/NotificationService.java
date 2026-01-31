@@ -9,46 +9,59 @@ import com.novacomp.notifications.domain.port.NotificationChannelPort;
 import com.novacomp.notifications.domain.port.NotificationSenderPort;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Main notification service that orchestrates sending notifications through different channels.
  * This service acts as a facade and uses the Strategy Pattern to delegate to appropriate channels.
  * 
- * This class implements the Application Service pattern from Clean Architecture.
+ * <p>This class implements the Application Service pattern from Clean Architecture.
+ * 
+ * <p>Enhanced with Java 21 features:
+ * <ul>
+ *   <li><b>ConcurrentHashMap</b>: Thread-safe channel registry</li>
+ *   <li><b>Stream API</b>: Functional collection processing</li>
+ *   <li><b>Optional API</b>: Null-safe channel retrieval</li>
+ *   <li><b>Method References</b>: Concise lambda expressions</li>
+ * </ul>
  */
 @Slf4j
 public class NotificationService implements NotificationSenderPort {
     
+    // ConcurrentHashMap for thread-safe operations
     private final Map<NotificationChannel, NotificationChannelPort> channels;
     
     /**
      * Creates a new NotificationService with no channels registered.
+     * Uses ConcurrentHashMap for thread-safe channel management.
      * Channels must be registered using {@link #registerChannel(NotificationChannelPort)}
      */
     public NotificationService() {
-        this.channels = new HashMap<>();
+        this.channels = new ConcurrentHashMap<>();
     }
     
     /**
      * Registers a notification channel for use.
+     * Thread-safe operation using ConcurrentHashMap.
      * 
      * @param channel the channel to register
      * @throws ConfigurationException if channel is null
      */
     public void registerChannel(NotificationChannelPort channel) {
-        if (channel == null) {
-            throw new ConfigurationException("Channel cannot be null");
-        }
-        
-        NotificationChannel channelType = channel.getChannelType();
-        if (channels.containsKey(channelType)) {
-            log.warn("Overwriting existing channel: {}", channelType);
-        }
-        
-        channels.put(channelType, channel);
-        log.info("Registered notification channel: {}", channelType);
+        Optional.ofNullable(channel)
+            .map(NotificationChannelPort::getChannelType)
+            .ifPresentOrElse(
+                channelType -> {
+                    var previous = channels.put(channelType, channel);
+                    if (previous != null) {
+                        log.warn("Overwriting existing channel: {}", channelType);
+                    }
+                    log.info("Registered notification channel: {}", channelType);
+                },
+                () -> { throw new ConfigurationException("Channel cannot be null"); }
+            );
     }
     
     /**
@@ -61,13 +74,17 @@ public class NotificationService implements NotificationSenderPort {
      */
     @Override
     public NotificationResult send(NotificationRequest request) {
-        log.debug("Sending notification through channel: {}", request.getChannel());
+        log.debug("Sending notification through channel: {}", request.channel());
         
-        // Validate request
+        // Validate request (record constructor already validates, we just check null)
         validateRequest(request);
         
-        // Get the appropriate channel
-        NotificationChannelPort channel = getChannel(request.getChannel());
+        // Get the appropriate channel using Optional API
+        NotificationChannelPort channel = findChannel(request.channel())
+            .orElseThrow(() -> new ConfigurationException(
+                "Channel not registered: " + request.channel() + 
+                ". Please register the channel before sending notifications."
+            ));
         
         // Validate request for specific channel
         channel.validate(request);
@@ -76,58 +93,126 @@ public class NotificationService implements NotificationSenderPort {
         try {
             NotificationResult result = channel.send(request);
             
-            if (result.isSuccess()) {
+            // Use functional API for result handling
+            result.ifSuccess(messageId -> 
                 log.info("Notification sent successfully through {}: messageId={}",
-                    request.getChannel(), result.getMessageId());
-            } else {
+                    request.channel(), messageId)
+            ).ifFailure(error -> 
                 log.error("Failed to send notification through {}: {}",
-                    request.getChannel(), result.getErrorMessage());
-            }
+                    request.channel(), error)
+            );
             
             return result;
             
         } catch (Exception e) {
-            log.error("Error sending notification through {}", request.getChannel(), e);
-            return NotificationResult.failure(request.getChannel(), e);
+            log.error("Error sending notification through {}", request.channel(), e);
+            return NotificationResult.failure(request.channel(), e);
         }
     }
     
     /**
+     * Sends notifications to multiple channels sequentially.
+     * Demonstrates Stream API for multi-channel operations.
+     * 
+     * @param request the base notification request
+     * @param channelTypes the channels to send through
+     * @return map of channel to result
+     */
+    public Map<NotificationChannel, NotificationResult> sendToMultipleChannels(
+        NotificationRequest request,
+        Set<NotificationChannel> channelTypes
+    ) {
+        log.info("Sending notification to {} channels", channelTypes.size());
+        
+        return channelTypes.stream()
+            .map(channel -> request.withChannel(channel))
+            .collect(Collectors.toMap(
+                NotificationRequest::channel,
+                this::send,
+                (r1, r2) -> r1, // merge function (shouldn't be needed)
+                LinkedHashMap::new // maintain order
+            ));
+    }
+    
+    /**
+     * Gets all registered channel types.
+     * Stream API returning immutable sorted list.
+     * 
+     * @return sorted list of registered channels
+     */
+    public List<NotificationChannel> getRegisteredChannels() {
+        return channels.keySet()
+            .stream()
+            .sorted()
+            .toList(); // Java 16+: immutable list
+    }
+    
+    /**
+     * Finds a channel by type using Optional API.
+     * Demonstrates modern null-safe retrieval.
+     * 
+     * @param channelType the channel type
+     * @return Optional containing the channel, or empty if not found
+     */
+    public Optional<NotificationChannelPort> findChannel(NotificationChannel channelType) {
+        return Optional.ofNullable(channels.get(channelType));
+    }
+    
+    /**
+     * Checks if all specified channels are registered.
+     * Stream API for validation.
+     * 
+     * @param channelTypes channels to check
+     * @return true if all are registered
+     */
+    public boolean areAllChannelsRegistered(Collection<NotificationChannel> channelTypes) {
+        return channelTypes.stream()
+            .allMatch(this::isChannelRegistered);
+    }
+    
+    /**
+     * Gets channels that support a specific request.
+     * Stream API with filtering.
+     * 
+     * @param request the notification request
+     * @return list of channels that support the request
+     */
+    public List<NotificationChannelPort> findSupportingChannels(NotificationRequest request) {
+        return channels.values()
+            .stream()
+            .filter(channel -> channel.supports(request))
+            .toList();
+    }
+    
+    /**
+     * Gets statistics about registered channels.
+     * Demonstrates Collectors.groupingBy for data aggregation.
+     * 
+     * @return map of channel type to channel name
+     */
+    public Map<String, Long> getChannelStatistics() {
+        return channels.values()
+            .stream()
+            .collect(Collectors.groupingBy(
+                channel -> channel.getChannelType().name(),
+                Collectors.counting()
+            ));
+    }
+    
+    /**
      * Validates the basic notification request.
+     * The record's compact constructor already performs validation,
+     * so this method primarily ensures non-null.
      * 
      * @param request the request to validate
      * @throws ValidationException if validation fails
      */
     private void validateRequest(NotificationRequest request) {
+        // Record constructor already validates, but we check null here
         if (request == null) {
             throw new ValidationException("Notification request cannot be null");
         }
-        
-        if (!request.isValid()) {
-            throw new ValidationException(
-                "Invalid notification request: missing required fields"
-            );
-        }
-    }
-    
-    /**
-     * Gets the channel for the specified type.
-     * 
-     * @param channelType the channel type
-     * @return the channel
-     * @throws ConfigurationException if channel is not registered
-     */
-    private NotificationChannelPort getChannel(NotificationChannel channelType) {
-        NotificationChannelPort channel = channels.get(channelType);
-        
-        if (channel == null) {
-            throw new ConfigurationException(
-                "Channel not registered: " + channelType + 
-                ". Please register the channel before sending notifications."
-            );
-        }
-        
-        return channel;
+        // All other validation is done in the record's compact constructor
     }
     
     /**

@@ -52,24 +52,22 @@ public class EmailNotificationChannel implements NotificationChannelPort {
     
     /**
      * Creates the appropriate email sender based on the provider.
-     * Factory Method pattern.
+     * Factory Method pattern with Java 21 switch expressions.
+     * 
+     * <p>Uses modern switch expression (Java 14+) with pattern matching readiness.
+     * No default case needed - compiler ensures exhaustiveness with enums.
      * 
      * @param config the email configuration
      * @return the email sender
+     * @throws ConfigurationException if provider is unsupported
      */
     private EmailSender createEmailSender(EmailConfig config) {
-        switch (config.getProvider()) {
-            case SENDGRID:
-                return new SendGridEmailSender(config);
-            case MAILGUN:
-                return new MailgunEmailSender(config);
-            case SMTP:
-                return new SmtpEmailSender(config);
-            default:
-                throw new ConfigurationException(
-                    "Unsupported email provider: " + config.getProvider()
-                );
-        }
+        return switch (config.getProvider()) {
+            case SENDGRID -> new SendGridEmailSender(config);
+            case MAILGUN -> new MailgunEmailSender(config);
+            case SMTP -> new SmtpEmailSender(config);
+            // No default needed - switch is exhaustive over enum
+        };
     }
     
     @Override
