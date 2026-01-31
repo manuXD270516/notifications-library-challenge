@@ -101,10 +101,11 @@ NotificationRequest request = NotificationRequest.builder()
 
 NotificationResult result = notificationService.send(request);
 
-if (result.isSuccess()) {
+if (result.success()) {
     System.out.println("Notification sent successfully!");
+    result.messageId().ifPresent(id -> System.out.println("Message ID: " + id));
 } else {
-    System.out.println("Error: " + result.getError());
+    result.errorMessage().ifPresent(error -> System.out.println("Error: " + error));
 }
 ```
 
@@ -272,15 +273,25 @@ The library provides comprehensive error handling:
 try {
     NotificationResult result = notificationService.send(request);
     
-    if (!result.isSuccess()) {
-        // Handle validation errors
-        if (result.getError() instanceof ValidationException) {
-            // Handle validation
-        }
-        // Handle sending errors
-        else if (result.getError() instanceof SendingException) {
-            // Handle sending failure
-        }
+    // Handle success
+    result.ifSuccess(messageId -> 
+        log.info("Notification sent successfully: {}", messageId)
+    );
+    
+    // Handle failure
+    result.ifFailure(errorMessage -> 
+        log.error("Notification failed: {}", errorMessage)
+    );
+    
+    // Or check manually
+    if (!result.success()) {
+        result.error().ifPresent(throwable -> {
+            if (throwable instanceof ValidationException) {
+                // Handle validation
+            } else if (throwable instanceof SendingException) {
+                // Handle sending failure
+            }
+        });
     }
 } catch (NotificationException e) {
     // Handle unexpected errors
@@ -333,13 +344,24 @@ public class SlackNotificationChannel implements NotificationChannel {
 ### Push Notification Providers
 - **Firebase Cloud Messaging (FCM)** - Cross-platform push notifications
 
+## Java 21 Features
+
+This library leverages modern Java 21 features:
+
+- **Records**: Immutable data classes with automatic validation (`NotificationRequest`, `NotificationResult`)
+- **Virtual Threads**: Scalable async operations with `AsyncNotificationService`
+- **Pattern Matching Switch**: Clean provider selection in channel factories
+- **Stream API**: Functional batch processing with `NotificationBatch`
+- **Optional API**: Null-safe error handling and result processing
+
 ## Best Practices
 
 1. **Security**: Never hardcode API keys. Use environment variables or secure configuration.
-2. **Error Handling**: Always check `NotificationResult.isSuccess()` before proceeding.
+2. **Error Handling**: Use `result.ifSuccess()` and `result.ifFailure()` for functional error handling.
 3. **Retry Logic**: Implement retry mechanisms for transient failures.
 4. **Rate Limiting**: Be aware of provider rate limits.
 5. **Testing**: Use mocks for testing, don't make real API calls in unit tests.
+6. **Async Operations**: Use `AsyncNotificationService` with Virtual Threads for high-throughput scenarios.
 
 ## Contributing
 
