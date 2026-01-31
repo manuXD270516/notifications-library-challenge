@@ -30,7 +30,6 @@ class NotificationRequestTest {
         assertEquals("Test Subject", request.subject());
         assertEquals("Test message", request.message());
         assertEquals(NotificationPriority.HIGH, request.priority());
-        assertTrue(request.isValid());
     }
     
     @Test
@@ -48,69 +47,64 @@ class NotificationRequestTest {
     }
     
     @Test
-    @DisplayName("Should be invalid when channel is null")
-    void shouldBeInvalidWhenChannelIsNull() {
-        // Given & When
-        NotificationRequest request = NotificationRequest.builder()
-            .recipient("user@example.com")
-            .message("Test message")
-            .build();
-        
-        // Then
-        assertFalse(request.isValid());
+    @DisplayName("Should throw exception when channel is null")
+    void shouldThrowExceptionWhenChannelIsNull() {
+        // Given & When & Then
+        assertThrows(NullPointerException.class, () -> {
+            NotificationRequest.builder()
+                .recipient("user@example.com")
+                .message("Test message")
+                .build();
+        });
     }
     
     @Test
-    @DisplayName("Should be invalid when recipient is null")
-    void shouldBeInvalidWhenRecipientIsNull() {
-        // Given & When
-        NotificationRequest request = NotificationRequest.builder()
-            .channel(NotificationChannel.EMAIL)
-            .message("Test message")
-            .build();
-        
-        // Then
-        assertFalse(request.isValid());
+    @DisplayName("Should throw exception when recipient is null")
+    void shouldThrowExceptionWhenRecipientIsNull() {
+        // Given & When & Then
+        assertThrows(Exception.class, () -> {
+            NotificationRequest.builder()
+                .channel(NotificationChannel.EMAIL)
+                .message("Test message")
+                .build();
+        });
     }
     
     @Test
-    @DisplayName("Should be invalid when recipient is empty")
-    void shouldBeInvalidWhenRecipientIsEmpty() {
-        // Given & When
-        NotificationRequest request = NotificationRequest.builder()
-            .channel(NotificationChannel.EMAIL)
-            .recipient("   ")
-            .message("Test message")
-            .build();
-        
-        // Then
-        assertFalse(request.isValid());
+    @DisplayName("Should throw exception when recipient is empty")
+    void shouldThrowExceptionWhenRecipientIsEmpty() {
+        // Given & When & Then
+        assertThrows(Exception.class, () -> {
+            NotificationRequest.builder()
+                .channel(NotificationChannel.EMAIL)
+                .recipient("   ")
+                .message("Test message")
+                .build();
+        });
     }
     
     @Test
-    @DisplayName("Should be invalid when message is null")
-    void shouldBeInvalidWhenMessageIsNull() {
-        // Given & When
-        NotificationRequest request = NotificationRequest.builder()
-            .channel(NotificationChannel.EMAIL)
-            .recipient("user@example.com")
-            .build();
-        
-        // Then
-        assertFalse(request.isValid());
+    @DisplayName("Should throw exception when message is null")
+    void shouldThrowExceptionWhenMessageIsNull() {
+        // Given & When & Then
+        assertThrows(Exception.class, () -> {
+            NotificationRequest.builder()
+                .channel(NotificationChannel.EMAIL)
+                .recipient("user@example.com")
+                .build();
+        });
     }
     
     @Test
-    @DisplayName("Should be invalid when message is empty")
-    void shouldBeInvalidWhenMessageIsEmpty() {
-        // Given & When
-        NotificationRequest request = NotificationRequest.builder()
-            .channel(NotificationChannel.EMAIL)
-            .recipient("user@example.com")
-            .message("   ")
-            .build();
-        
-        // Then
-        assertFalse(request.isValid());
+    @DisplayName("Should throw exception when message is empty")
+    void shouldThrowExceptionWhenMessageIsEmpty() {
+        // Given & When & Then
+        assertThrows(Exception.class, () -> {
+            NotificationRequest.builder()
+                .channel(NotificationChannel.EMAIL)
+                .recipient("user@example.com")
+                .message("   ")
+                .build();
+        });
     }
 }

@@ -186,6 +186,6 @@ class NotificationServiceTest {
         assertNotNull(result);
         assertFalse(result.success());
         assertEquals(NotificationChannel.EMAIL, result.channel());
-        assertNotNull(result.getError());
+        assertNotNull(result.error());
     }
 }

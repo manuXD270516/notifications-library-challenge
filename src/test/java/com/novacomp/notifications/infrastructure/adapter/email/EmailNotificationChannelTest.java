@@ -126,9 +126,9 @@ class EmailNotificationChannelTest {
         // Then
         assertNotNull(result);
         assertTrue(result.success());
-        assertEquals(NotificationChannel.EMAIL, result.getChannel());
-        assertNotNull(result.messageId());
-        assertTrue(result.messageId().startsWith("sendgrid-"));
+        assertEquals(NotificationChannel.EMAIL, result.channel());
+        assertTrue(result.messageId().isPresent());
+        assertTrue(result.messageId().get().startsWith("sendgrid-"));
     }
     
     @Test

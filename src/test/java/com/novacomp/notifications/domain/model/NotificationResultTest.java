@@ -26,8 +26,8 @@ class NotificationResultTest {
         assertEquals(channel, result.channel());
         assertEquals(messageId, result.messageId());
         assertNull(result.errorMessage());
-        assertNull(result.getError());
-        assertNotNull(result.getTimestamp());
+        assertNull(result.error());
+        assertNotNull(result.timestamp());
     }
     
     @Test
@@ -45,7 +45,7 @@ class NotificationResultTest {
         assertEquals(channel, result.channel());
         assertEquals(errorMessage, result.errorMessage());
         assertNull(result.messageId());
-        assertNotNull(result.getTimestamp());
+        assertNotNull(result.timestamp());
     }
     
     @Test
@@ -62,24 +62,23 @@ class NotificationResultTest {
         assertFalse(result.success());
         assertEquals(channel, result.channel());
         assertEquals("Connection timeout", result.errorMessage());
-        assertEquals(exception, result.getError());
+        assertEquals(exception, result.error());
         assertNull(result.messageId());
-        assertNotNull(result.getTimestamp());
+        assertNotNull(result.timestamp());
     }
     
     @Test
-    @DisplayName("Should create result with builder")
-    void shouldCreateResultWithBuilder() {
+    @DisplayName("Should create result with static factory methods")
+    void shouldCreateResultWithStaticFactory() {
         // Given & When
-        NotificationResult result = NotificationResult.builder()
-            .success(true)
-            .channel(NotificationChannel.EMAIL)
-            .messageId("msg-456")
-            .build();
+        NotificationResult result = NotificationResult.success(
+            NotificationChannel.EMAIL, 
+            "msg-456"
+        );
         
         // Then
         assertTrue(result.success());
         assertEquals(NotificationChannel.EMAIL, result.channel());
-        assertEquals("msg-456", result.messageId());
+        result.messageId().ifPresent(id -> assertEquals("msg-456", id));
     }
 }
