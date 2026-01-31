@@ -33,7 +33,7 @@ public interface NotificationChannelPort {
      * @return true if supported, false otherwise
      */
     default boolean supports(NotificationRequest request) {
-        return request != null && request.getChannel() == getChannelType();
+        return request != null && request.channel() == getChannelType();
     }
     
     /**

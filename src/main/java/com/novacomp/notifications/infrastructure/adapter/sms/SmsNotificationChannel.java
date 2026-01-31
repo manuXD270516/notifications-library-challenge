@@ -70,26 +70,26 @@ public class SmsNotificationChannel implements NotificationChannelPort {
     
     @Override
     public NotificationResult send(NotificationRequest request) {
-        log.debug("Sending SMS to: {}", request.getRecipient());
+        log.debug("Sending SMS to: {}", request.recipient());
         
         try {
             // Create SMS message
             SmsMessage message = SmsMessage.builder()
                 .from(config.getFromNumber())
-                .to(request.getRecipient())
-                .body(request.getMessage())
+                .to(request.recipient())
+                .body(request.message())
                 .build();
             
             // Send SMS
             String messageId = smsSender.send(message);
             
             log.info("SMS sent successfully to: {}, messageId: {}", 
-                request.getRecipient(), messageId);
+                request.recipient(), messageId);
             
             return NotificationResult.success(NotificationChannel.SMS, messageId);
             
         } catch (Exception e) {
-            log.error("Failed to send SMS to: {}", request.getRecipient(), e);
+            log.error("Failed to send SMS to: {}", request.recipient(), e);
             throw new SendingException("Failed to send SMS", e);
         }
     }
@@ -101,17 +101,17 @@ public class SmsNotificationChannel implements NotificationChannelPort {
     
     @Override
     public void validate(NotificationRequest request) {
-        if (!isValidPhoneNumber(request.getRecipient())) {
+        if (!isValidPhoneNumber(request.recipient())) {
             throw new ValidationException(
                 "Invalid phone number format (use E.164 format, e.g., +1234567890): " 
-                + request.getRecipient()
+                + request.recipient()
             );
         }
         
-        if (request.getMessage().length() > 1600) {
+        if (request.message().length() > 1600) {
             throw new ValidationException(
                 "SMS message too long (max 1600 characters): " 
-                + request.getMessage().length()
+                + request.message().length()
             );
         }
     }

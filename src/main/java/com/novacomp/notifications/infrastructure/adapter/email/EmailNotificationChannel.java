@@ -72,28 +72,28 @@ public class EmailNotificationChannel implements NotificationChannelPort {
     
     @Override
     public NotificationResult send(NotificationRequest request) {
-        log.debug("Sending email to: {}", request.getRecipient());
+        log.debug("Sending email to: {}", request.recipient());
         
         try {
             // Create email message
             EmailMessage message = EmailMessage.builder()
                 .from(config.getFrom())
                 .fromName(config.getFromName())
-                .to(request.getRecipient())
-                .subject(request.getSubject())
-                .body(request.getMessage())
+                .to(request.recipient())
+                .subject(request.subject())
+                .body(request.message())
                 .build();
             
             // Send email
             String messageId = emailSender.send(message);
             
             log.info("Email sent successfully to: {}, messageId: {}", 
-                request.getRecipient(), messageId);
+                request.recipient(), messageId);
             
             return NotificationResult.success(NotificationChannel.EMAIL, messageId);
             
         } catch (Exception e) {
-            log.error("Failed to send email to: {}", request.getRecipient(), e);
+            log.error("Failed to send email to: {}", request.recipient(), e);
             throw new SendingException("Failed to send email", e);
         }
     }
@@ -105,13 +105,13 @@ public class EmailNotificationChannel implements NotificationChannelPort {
     
     @Override
     public void validate(NotificationRequest request) {
-        if (request.getSubject() == null || request.getSubject().trim().isEmpty()) {
+        if (request.subject() == null || request.subject().trim().isEmpty()) {
             throw new ValidationException("Email subject is required");
         }
         
-        if (!isValidEmail(request.getRecipient())) {
+        if (!isValidEmail(request.recipient())) {
             throw new ValidationException(
-                "Invalid email address: " + request.getRecipient()
+                "Invalid email address: " + request.recipient()
             );
         }
     }

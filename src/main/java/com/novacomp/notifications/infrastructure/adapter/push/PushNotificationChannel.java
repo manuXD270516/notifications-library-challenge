@@ -64,28 +64,28 @@ public class PushNotificationChannel implements NotificationChannelPort {
     
     @Override
     public NotificationResult send(NotificationRequest request) {
-        log.debug("Sending push notification to device: {}", request.getRecipient());
+        log.debug("Sending push notification to device: {}", request.recipient());
         
         try {
             // Create push message
             PushMessage message = PushMessage.builder()
-                .deviceToken(request.getRecipient())
-                .title(request.getSubject())
-                .body(request.getMessage())
-                .priority(mapPriority(request.getPriority()))
+                .deviceToken(request.recipient())
+                .title(request.subject())
+                .body(request.message())
+                .priority(mapPriority(request.priority()))
                 .build();
             
             // Send push notification
             String messageId = pushSender.send(message);
             
             log.info("Push notification sent successfully to device: {}, messageId: {}", 
-                request.getRecipient(), messageId);
+                request.recipient(), messageId);
             
             return NotificationResult.success(NotificationChannel.PUSH, messageId);
             
         } catch (Exception e) {
             log.error("Failed to send push notification to device: {}", 
-                request.getRecipient(), e);
+                request.recipient(), e);
             throw new SendingException("Failed to send push notification", e);
         }
     }
@@ -97,11 +97,11 @@ public class PushNotificationChannel implements NotificationChannelPort {
     
     @Override
     public void validate(NotificationRequest request) {
-        if (request.getRecipient() == null || request.getRecipient().trim().isEmpty()) {
+        if (request.recipient() == null || request.recipient().trim().isEmpty()) {
             throw new ValidationException("Device token is required for push notifications");
         }
         
-        if (request.getRecipient().length() < 20) {
+        if (request.recipient().length() < 20) {
             throw new ValidationException("Invalid device token format");
         }
     }
