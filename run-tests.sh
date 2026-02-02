@@ -53,7 +53,7 @@ if command -v mvn &> /dev/null; then
     MVN_VERSION=$(mvn -version | head -1)
     echo -e "${GREEN}✅ Maven found: ${MVN_VERSION}${NC}"
 else
-    echo -e "${YELLOW}⚠️  Maven not found (Docker can be used instead)${NC}"
+    echo -e "${YELLOW}⚠️  Maven not found (Docker can be used in    stead)${NC}"
 fi
 
 # Check Docker

@@ -89,6 +89,29 @@ public record NotificationRequest(
     }
     
     /**
+     * Creates a new request with the specified recipient.
+     * Useful for multi-channel sending with different recipients per channel.
+     * 
+     * @param newRecipient the new recipient
+     * @return a new NotificationRequest with the updated recipient
+     */
+    public NotificationRequest withRecipient(String newRecipient) {
+        return new NotificationRequest(channel, newRecipient, subject, message, metadata, priority);
+    }
+    
+    /**
+     * Creates a new request with both channel and recipient updated.
+     * Optimized method for multi-channel scenarios.
+     * 
+     * @param newChannel the new channel
+     * @param newRecipient the new recipient
+     * @return a new NotificationRequest with updated channel and recipient
+     */
+    public NotificationRequest withChannelAndRecipient(NotificationChannel newChannel, String newRecipient) {
+        return new NotificationRequest(newChannel, newRecipient, subject, message, metadata, priority);
+    }
+    
+    /**
      * Creates a new request with the specified priority.
      * 
      * @param newPriority the new priority
