@@ -93,23 +93,13 @@ class PushNotificationChannelTest {
     @Test
     @DisplayName("Should validate device token is required")
     void shouldValidateDeviceTokenIsRequired() {
-        // Given
-        PushConfig config = PushConfig.builder()
-            .provider(PushConfig.PushProvider.FCM)
-            .serverKey("test-server-key")
-            .build();
-        
-        PushNotificationChannel channel = new PushNotificationChannel(config);
-        
-        NotificationRequest request = NotificationRequest.builder()
-            .channel(NotificationChannel.PUSH)
-            .recipient("")
-            .message("Test message")
-            .build();
-        
-        // When & Then
+        // When & Then - Record constructor throws ValidationException on empty recipient
         assertThrows(ValidationException.class, () -> {
-            channel.validate(request);
+            NotificationRequest.builder()
+                .channel(NotificationChannel.PUSH)
+                .recipient("") // Empty recipient - throws on construction
+                .message("Test message")
+                .build();
         });
     }
     

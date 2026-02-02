@@ -36,9 +36,9 @@ class NotificationServiceTest {
     void setUp() {
         notificationService = new NotificationService();
         
-        // Configure mocks
-        when(emailChannel.getChannelType()).thenReturn(NotificationChannel.EMAIL);
-        when(smsChannel.getChannelType()).thenReturn(NotificationChannel.SMS);
+        // Configure mocks with lenient() to avoid UnnecessaryStubbingException
+        lenient().when(emailChannel.getChannelType()).thenReturn(NotificationChannel.EMAIL);
+        lenient().when(smsChannel.getChannelType()).thenReturn(NotificationChannel.SMS);
     }
     
     @Test
@@ -88,7 +88,8 @@ class NotificationServiceTest {
         // Then
         assertNotNull(result);
         assertTrue(result.success());
-        assertEquals("msg-123", result.messageId());
+        assertTrue(result.messageId().isPresent());
+        assertEquals("msg-123", result.messageId().get());
         verify(emailChannel).send(request);
         verify(emailChannel).validate(request);
     }
@@ -105,14 +106,11 @@ class NotificationServiceTest {
     @Test
     @DisplayName("Should throw exception when sending invalid request")
     void shouldThrowExceptionWhenSendingInvalidRequest() {
-        // Given
-        NotificationRequest request = NotificationRequest.builder()
-            .channel(NotificationChannel.EMAIL)
-            .build(); // Missing required fields
-        
-        // When & Then
+        // When & Then - Record constructor throws ValidationException on invalid data
         assertThrows(ValidationException.class, () -> {
-            notificationService.send(request);
+            NotificationRequest.builder()
+                .channel(NotificationChannel.EMAIL)
+                .build(); // Missing required fields - throws on construction
         });
     }
     

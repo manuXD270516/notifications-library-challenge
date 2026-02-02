@@ -24,9 +24,10 @@ class NotificationResultTest {
         // Then
         assertTrue(result.success());
         assertEquals(channel, result.channel());
-        assertEquals(messageId, result.messageId());
-        assertNull(result.errorMessage());
-        assertNull(result.error());
+        assertTrue(result.messageId().isPresent());
+        assertEquals(messageId, result.messageId().get());
+        assertTrue(result.errorMessage().isEmpty());
+        assertTrue(result.error().isEmpty());
         assertNotNull(result.timestamp());
     }
     
@@ -43,8 +44,9 @@ class NotificationResultTest {
         // Then
         assertFalse(result.success());
         assertEquals(channel, result.channel());
-        assertEquals(errorMessage, result.errorMessage());
-        assertNull(result.messageId());
+        assertTrue(result.errorMessage().isPresent());
+        assertEquals(errorMessage, result.errorMessage().get());
+        assertTrue(result.messageId().isEmpty());
         assertNotNull(result.timestamp());
     }
     
@@ -61,9 +63,11 @@ class NotificationResultTest {
         // Then
         assertFalse(result.success());
         assertEquals(channel, result.channel());
-        assertEquals("Connection timeout", result.errorMessage());
-        assertEquals(exception, result.error());
-        assertNull(result.messageId());
+        assertTrue(result.errorMessage().isPresent());
+        assertEquals("Connection timeout", result.errorMessage().get());
+        assertTrue(result.error().isPresent());
+        assertEquals(exception, result.error().get());
+        assertTrue(result.messageId().isEmpty());
         assertNotNull(result.timestamp());
     }
     

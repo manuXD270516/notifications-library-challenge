@@ -74,10 +74,10 @@ public class NotificationService implements NotificationSenderPort {
      */
     @Override
     public NotificationResult send(NotificationRequest request) {
-        log.debug("Sending notification through channel: {}", request.channel());
-        
         // Validate request (record constructor already validates, we just check null)
         validateRequest(request);
+        
+        log.debug("Sending notification through channel: {}", request.channel());
         
         // Get the appropriate channel using Optional API
         NotificationChannelPort channel = findChannel(request.channel())
