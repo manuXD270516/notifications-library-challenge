@@ -6,6 +6,30 @@
 
 ---
 
+## Functional Demo Application
+
+A comprehensive demo application is included: `NotificationLibraryDemo.java`
+
+**Features**:
+- Complete demonstration of all library capabilities
+- 5 test scenarios with detailed logging
+- Shows Email, SMS, and Push notifications
+- Multi-channel sending with channel-specific recipients
+- Error handling and validation examples
+
+**How to run**:
+```bash
+# From IntelliJ IDEA
+# Right-click on NotificationLibraryDemo.java → Run
+
+# From command line
+mvn exec:java -Dexec.mainClass="com.novacomp.notifications.NotificationLibraryDemo"
+```
+
+**Output**: Console logs + `logs/notifications-library.log` file
+
+---
+
 ## Current Environment Status
 
 ### Java Environment

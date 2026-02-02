@@ -14,7 +14,10 @@ This library provides a unified abstraction for sending notifications across dif
 - ✅ **SOLID Principles**: Clean architecture with design patterns
 - ✅ **Type-Safe Configuration**: Builder pattern for configuration
 - ✅ **Error Handling**: Comprehensive error management
-- ✅ **Well Tested**: Unit tests with mocks
+- ✅ **Well Tested**: 46 unit tests with 100% pass rate
+- ✅ **Functional Demo**: Interactive demo showcasing all features
+- ✅ **Structured Logging**: SLF4J/Logback with console and file output
+- ✅ **Immutable Records**: Java 21 records with validation
 
 ## Supported Channels
 
@@ -207,9 +210,33 @@ mvn clean verify -s settings.xml
 2. Use Docker to build and test (see Docker section)
 3. Review the test source code in `src/test/java/`
 
+### Running Functional Demo
+
+The library includes a comprehensive functional demo that showcases all features:
+
+```bash
+# From IntelliJ IDEA:
+# 1. Open src/main/java/com/novacomp/notifications/NotificationLibraryDemo.java
+# 2. Right-click → Run 'NotificationLibraryDemo.main()'
+
+# From command line (requires JDK 21+):
+mvn clean compile -s settings.xml
+mvn exec:java -Dexec.mainClass="com.novacomp.notifications.NotificationLibraryDemo"
+```
+
+**Demo features**:
+- Email notification with SendGrid
+- SMS notification with Twilio
+- Push notification with FCM
+- Multi-channel sending with channel-specific recipients
+- Error handling scenarios
+- Complete logging output
+
+**Output**: Check console for detailed logs or `logs/notifications-library.log` for file output.
+
 ### Running Examples
 
-The `examples/` directory contains usage examples:
+The `examples/` directory contains additional usage examples:
 
 ```bash
 # View the example code
@@ -297,6 +324,65 @@ try {
     // Handle unexpected errors
     log.error("Notification failed", e);
 }
+```
+
+## Advanced Features
+
+### Multi-Channel with Different Recipients
+
+Send the same message through multiple channels with channel-specific recipients:
+
+```java
+// Base message
+NotificationRequest emailRequest = NotificationRequest.builder()
+    .channel(NotificationChannel.EMAIL)
+    .recipient("user@example.com")
+    .subject("Important notification")
+    .message("Your account has been updated")
+    .build();
+
+// Same message via SMS with appropriate phone number
+NotificationRequest smsRequest = emailRequest
+    .withChannelAndRecipient(NotificationChannel.SMS, "+1234567890");
+
+// Same message via Push with device token
+NotificationRequest pushRequest = emailRequest
+    .withChannelAndRecipient(
+        NotificationChannel.PUSH,
+        "device-token-1234567890abcdef..."
+    );
+
+// Send through all channels
+NotificationResult emailResult = service.send(emailRequest);
+NotificationResult smsResult = service.send(smsRequest);
+NotificationResult pushResult = service.send(pushRequest);
+```
+
+### Immutable Request Updates
+
+Update individual fields while maintaining immutability:
+
+```java
+NotificationRequest original = NotificationRequest.builder()
+    .channel(NotificationChannel.EMAIL)
+    .recipient("user@example.com")
+    .message("Hello")
+    .build();
+
+// Change only the channel
+NotificationRequest smsVersion = original.withChannel(NotificationChannel.SMS);
+
+// Change only the recipient
+NotificationRequest newUser = original.withRecipient("another@example.com");
+
+// Change channel and recipient atomically
+NotificationRequest pushVersion = original.withChannelAndRecipient(
+    NotificationChannel.PUSH,
+    "device-token-xxx"
+);
+
+// Change priority
+NotificationRequest urgent = original.withPriority(NotificationPriority.HIGH);
 ```
 
 ## Extending the Library

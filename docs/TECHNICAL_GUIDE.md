@@ -48,6 +48,30 @@ mvn test -s settings.xml
 mvn clean install -s settings.xml
 ```
 
+### Running the Functional Demo
+
+A comprehensive demo application is included that showcases all library features:
+
+```bash
+# From IntelliJ IDEA
+# 1. Navigate to: src/main/java/com/novacomp/notifications/NotificationLibraryDemo.java
+# 2. Right-click → Run 'NotificationLibraryDemo.main()'
+
+# From command line (with JDK 21)
+mvn clean compile -s settings.xml
+mvn exec:java -Dexec.mainClass="com.novacomp.notifications.NotificationLibraryDemo"
+```
+
+**Demo includes**:
+- Email sending with SendGrid provider
+- SMS sending with Twilio provider  
+- Push notification with FCM provider
+- Multi-channel sending with channel-specific recipients
+- Error handling and validation scenarios
+- Complete logging output (console + file)
+
+**Output location**: `logs/notifications-library.log`
+
 ### Basic Usage
 
 ```java
@@ -152,7 +176,25 @@ public record NotificationRequest(
             .orElseThrow(() -> new ValidationException("Message required"));
     }
     
-    // Immutability helpers
+    // Immutability helpers - create modified copies
+    public NotificationRequest withChannel(NotificationChannel newChannel) {
+        return new NotificationRequest(newChannel, recipient, subject, 
+                                      message, metadata, priority);
+    }
+    
+    public NotificationRequest withRecipient(String newRecipient) {
+        return new NotificationRequest(channel, newRecipient, subject, 
+                                      message, metadata, priority);
+    }
+    
+    public NotificationRequest withChannelAndRecipient(
+        NotificationChannel newChannel, 
+        String newRecipient
+    ) {
+        return new NotificationRequest(newChannel, newRecipient, subject, 
+                                      message, metadata, priority);
+    }
+    
     public NotificationRequest withPriority(NotificationPriority newPriority) {
         return new NotificationRequest(channel, recipient, subject, 
                                       message, metadata, newPriority);
@@ -163,8 +205,33 @@ public record NotificationRequest(
 **Benefits**:
 - Immutable by default
 - Validation at construction time
+- Functional updates with `with*()` methods
 - Less boilerplate than Lombok
 - Native Java feature (no dependencies)
+
+**Multi-Channel Usage**:
+```java
+// Base email request
+NotificationRequest emailReq = NotificationRequest.builder()
+    .channel(EMAIL)
+    .recipient("user@example.com")
+    .subject("Alert")
+    .message("Your account needs attention")
+    .build();
+
+// Same message to SMS with phone number
+NotificationRequest smsReq = emailReq
+    .withChannelAndRecipient(SMS, "+1234567890");
+
+// Same message to Push with device token
+NotificationRequest pushReq = emailReq
+    .withChannelAndRecipient(PUSH, "device-token-xxx");
+
+// Send through all channels
+service.send(emailReq);
+service.send(smsReq);
+service.send(pushReq);
+```
 
 ### 2. Virtual Threads (Java 21)
 
