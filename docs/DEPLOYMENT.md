@@ -36,7 +36,32 @@ mvn clean package -s settings.xml
 
 # Run tests
 mvn test -s settings.xml
+
+# Run functional demo (Interactive)
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.novacomp.notifications.NotificationLibraryDemo"
 ```
+
+### Quick Functional Demo
+
+To quickly verify the library is working correctly:
+
+**From IntelliJ IDEA**:
+1. Open `src/main/java/com/novacomp/notifications/NotificationLibraryDemo.java`
+2. Right-click → Run 'NotificationLibraryDemo.main()'
+3. Review console output and `logs/notifications-library.log`
+
+**From Command Line**:
+```bash
+mvn clean compile exec:java -Dexec.mainClass="com.novacomp.notifications.NotificationLibraryDemo"
+```
+
+**What it demonstrates**:
+- All 3 notification channels (Email, SMS, Push)
+- Multi-channel sending with proper recipient validation
+- Error handling and validation
+- Java 21 features: Records, Virtual Threads, Streams
+- Structured logging output
 
 ### Development Workflow
 

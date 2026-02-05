@@ -2,14 +2,47 @@
 
 This document provides comprehensive usage examples for the Notifications Library.
 
+> **Quick Start**: For a complete, runnable demonstration of all features, see `NotificationLibraryDemo.java` in the `src/main/java/com/novacomp/notifications/` directory. Simply run it from your IDE to see all examples in action with detailed logging output.
+
 ## Table of Contents
 
+0. [Interactive Demo Application](#interactive-demo-application)
 1. [Basic Email Notification](#basic-email-notification)
 2. [SMS Notification](#sms-notification)
 3. [Push Notification](#push-notification)
 4. [Multiple Channels](#multiple-channels)
 5. [Error Handling](#error-handling)
 6. [Advanced Configuration](#advanced-configuration)
+
+---
+
+## Interactive Demo Application
+
+The project includes a fully functional demo application that showcases all library features:
+
+**Location**: `src/main/java/com/novacomp/notifications/NotificationLibraryDemo.java`
+
+**Run from IntelliJ IDEA**:
+1. Open the project in IntelliJ IDEA
+2. Navigate to `NotificationLibraryDemo.java`
+3. Right-click and select "Run 'NotificationLibraryDemo.main()'"
+4. View output in console and `logs/notifications-library.log`
+
+**Run from Command Line**:
+```bash
+# Compile and run
+mvn clean compile
+mvn exec:java -Dexec.mainClass="com.novacomp.notifications.NotificationLibraryDemo"
+```
+
+**Features Demonstrated**:
+- Email notifications (with validation)
+- SMS notifications (with phone number validation)
+- Push notifications (with device token validation)
+- Multi-channel sending (with channel-specific recipients)
+- Error handling and validation
+- Java 21 features: Records, Virtual Threads, Streams, Optional API
+- Structured logging with SLF4J/Logback
 
 ---
 
@@ -52,12 +85,16 @@ public class SendGridExample {
         // Send notification
         NotificationResult result = notificationService.send(request);
         
-        // Check result
-        if (result.isSuccess()) {
+        // Check result using record accessors
+        if (result.success()) {
             System.out.println("Email sent successfully!");
-            System.out.println("Message ID: " + result.getMessageId());
+            result.messageId().ifPresent(id -> 
+                System.out.println("Message ID: " + id)
+            );
         } else {
-            System.err.println("Failed to send email: " + result.getErrorMessage());
+            result.errorMessage().ifPresent(error -> 
+                System.err.println("Failed to send email: " + error)
+            );
         }
     }
 }
@@ -96,7 +133,7 @@ public class MailgunExample {
         
         NotificationResult result = notificationService.send(request);
         
-        if (result.isSuccess()) {
+        if (result.success()) {
             System.out.println("✅ Email sent via Mailgun!");
         }
     }
@@ -180,11 +217,15 @@ public class TwilioSmsExample {
         
         NotificationResult result = notificationService.send(request);
         
-        if (result.isSuccess()) {
+        if (result.success()) {
             System.out.println("📱 SMS sent successfully!");
-            System.out.println("Message ID: " + result.getMessageId());
+            result.messageId().ifPresent(id -> 
+                System.out.println("Message ID: " + id)
+            );
         } else {
-            System.err.println("❌ Failed to send SMS: " + result.getErrorMessage());
+            result.errorMessage().ifPresent(error -> 
+                System.err.println("❌ Failed to send SMS: " + error)
+            );
         }
     }
 }
@@ -227,9 +268,11 @@ public class FcmPushExample {
         
         NotificationResult result = notificationService.send(request);
         
-        if (result.isSuccess()) {
+        if (result.success()) {
             System.out.println("🔔 Push notification sent successfully!");
-            System.out.println("Message ID: " + result.getMessageId());
+            result.messageId().ifPresent(id -> 
+                System.out.println("Message ID: " + id)
+            );
         }
     }
 }
@@ -314,10 +357,10 @@ public class MultiChannelExample {
                 .build()
         );
         
-        // Check results
-        System.out.println("Email: " + (emailResult.isSuccess() ? "✅ Sent" : "❌ Failed"));
-        System.out.println("SMS: " + (smsResult.isSuccess() ? "✅ Sent" : "❌ Failed"));
-        System.out.println("Push: " + (pushResult.isSuccess() ? "✅ Sent" : "❌ Failed"));
+        // Check results using record accessors
+        System.out.println("Email: " + (emailResult.success() ? "✅ Sent" : "❌ Failed"));
+        System.out.println("SMS: " + (smsResult.success() ? "✅ Sent" : "❌ Failed"));
+        System.out.println("Push: " + (pushResult.success() ? "✅ Sent" : "❌ Failed"));
     }
 }
 ```
@@ -361,18 +404,20 @@ public class ErrorHandlingExample {
             // Send notification
             NotificationResult result = notificationService.send(request);
             
-            // Handle result
-            if (result.isSuccess()) {
+            // Handle result using functional style
+            if (result.success()) {
                 System.out.println("✅ Notification sent successfully!");
-                System.out.println("Message ID: " + result.getMessageId());
-                System.out.println("Sent at: " + result.getTimestamp());
+                result.messageId().ifPresent(id -> 
+                    System.out.println("Message ID: " + id)
+                );
+                System.out.println("Sent at: " + result.timestamp());
             } else {
                 System.err.println("❌ Notification failed!");
-                System.err.println("Error: " + result.getErrorMessage());
+                result.errorMessage().ifPresent(error -> 
+                    System.err.println("Error: " + error)
+                );
                 
-                if (result.getError() != null) {
-                    result.getError().printStackTrace();
-                }
+                result.error().ifPresent(Throwable::printStackTrace);
             }
             
         } catch (ValidationException e) {
@@ -656,9 +701,10 @@ public class NotificationServiceTest {
         
         NotificationResult result = service.send(request);
         
-        // Verify
-        assertTrue(result.isSuccess());
-        assertEquals("test-123", result.getMessageId());
+        // Verify using record accessors
+        assertTrue(result.success());
+        assertTrue(result.messageId().isPresent());
+        assertEquals("test-123", result.messageId().get());
         verify(mockChannel, times(1)).send(any(NotificationRequest.class));
     }
 }

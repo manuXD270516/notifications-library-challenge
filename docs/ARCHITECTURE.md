@@ -170,6 +170,37 @@ EmailConfig config = EmailConfig.builder()
 - Clear, readable configuration
 - Optional parameters handling
 
+### 3.1 Immutable Updates with Records (Java 21)
+
+Domain models use Java Records with functional update methods:
+
+```java
+// NotificationRequest is a record with immutable update methods
+NotificationRequest baseRequest = NotificationRequest.builder()
+    .channel(NotificationChannel.EMAIL)
+    .recipient("user@example.com")
+    .subject("Hello")
+    .message("Welcome")
+    .build();
+
+// Create variations for different channels without mutation
+NotificationRequest smsVersion = baseRequest
+    .withChannelAndRecipient(NotificationChannel.SMS, "+1234567890");
+
+NotificationRequest pushVersion = baseRequest
+    .withChannelAndRecipient(
+        NotificationChannel.PUSH, 
+        "device-token-abc123"
+    );
+```
+
+**Benefits:**
+- Thread-safe immutability
+- Functional composition
+- Type-safe transformations
+- No defensive copying needed
+- Clean multi-channel patterns
+
 ### 4. Adapter Pattern
 
 Used to adapt external services to our domain interfaces.
@@ -504,12 +535,18 @@ public class CustomEmailChannel extends EmailNotificationChannel {
 
 ### Async Notifications
 
-Wrap the service for async execution:
+Wrap the service for async execution using Java 21 Virtual Threads:
 
 ```java
 public class AsyncNotificationService {
     private final NotificationService service;
     private final ExecutorService executor;
+    
+    public AsyncNotificationService(NotificationService service) {
+        this.service = service;
+        // Java 21 Virtual Threads - lightweight, scalable
+        this.executor = Executors.newVirtualThreadPerTaskExecutor();
+    }
     
     public CompletableFuture<NotificationResult> sendAsync(
         NotificationRequest request
@@ -585,9 +622,9 @@ void testCompleteNotificationFlow() {
     NotificationResult emailResult = service.send(emailRequest);
     NotificationResult smsResult = service.send(smsRequest);
     
-    // Verify
-    assertTrue(emailResult.isSuccess());
-    assertTrue(smsResult.isSuccess());
+    // Verify using record accessors
+    assertTrue(emailResult.success());
+    assertTrue(smsResult.success());
 }
 ```
 
@@ -606,16 +643,23 @@ void testCompleteNotificationFlow() {
 For high-volume scenarios:
 
 ```java
-ExecutorService executor = Executors.newFixedThreadPool(10);
+// Java 21 Virtual Threads - scales to millions of concurrent tasks
+ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
 List<CompletableFuture<NotificationResult>> futures = requests.stream()
     .map(request -> CompletableFuture.supplyAsync(
         () -> service.send(request),
         executor
     ))
-    .collect(Collectors.toList());
+    .toList(); // Java 16+ convenience method
 
+// Wait for all to complete
 CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+// Process results functionally
+List<NotificationResult> results = futures.stream()
+    .map(CompletableFuture::join)
+    .toList();
 ```
 
 ### Caching
@@ -631,6 +675,44 @@ public class CachedConfigurationProvider {
     }
 }
 ```
+
+---
+
+## Observability & Logging
+
+### Structured Logging with SLF4J/Logback
+
+The library implements comprehensive structured logging:
+
+```java
+// NotificationService example
+private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
+@Override
+public NotificationResult send(NotificationRequest request) {
+    log.debug("Sending notification through channel: {}", request.channel());
+    // ... processing ...
+    log.info("Notification sent successfully. Channel: {}, MessageId: {}", 
+        request.channel(), result.messageId());
+}
+```
+
+**Configuration**: `src/main/resources/logback.xml`
+- Console output with timestamp and level
+- File output: `logs/notifications-library.log`
+- Package-level control: DEBUG for library, INFO for root
+
+**Benefits:**
+- Real-time monitoring of notification flows
+- Debugging support for validation failures
+- Audit trail for sent notifications
+- Performance tracking
+
+**Log Levels:**
+- `DEBUG`: Request/response details, validation steps
+- `INFO`: Successful sends, configuration changes
+- `WARN`: Retries, degraded performance
+- `ERROR`: Send failures, configuration errors
 
 ---
 

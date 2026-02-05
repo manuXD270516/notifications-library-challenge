@@ -12,11 +12,15 @@ This repository uses a **branch-based documentation strategy** for professional 
 Contains only the core documents required for technical evaluation:
 
 ```
-📄 README.md              - Project overview and quick start
-📄 ARCHITECTURE.md        - Architecture and design patterns
-📄 EXAMPLES.md            - Complete usage examples
-📄 DEPLOYMENT.md          - Installation and deployment
-📄 TECHNICAL_GUIDE.md     - Consolidated technical reference
+docs/
+├── ARCHITECTURE.md         - Architecture and design patterns
+├── DEPLOYMENT.md           - Installation and deployment
+├── DOCUMENTATION_ACCESS.md - This file - branch navigation
+├── EXAMPLES.md             - Complete usage examples
+└── TECHNICAL_GUIDE.md      - Consolidated technical reference
+
+README.md                   - Project overview and quick start
+TEST_EXECUTION_REPORT.md    - Test execution guide and scenarios
 ```
 
 **Perfect for**: Quick evaluation and understanding the project
@@ -58,8 +62,10 @@ Contains ALL project documentation organized in `/docs` folder:
 # Already on master by default
 git clone https://github.com/manuXD270516/notifications-library-challenge.git
 cd notifications-library-challenge
-ls *.md
-# Shows: README.md, ARCHITECTURE.md, EXAMPLES.md, DEPLOYMENT.md, TECHNICAL_GUIDE.md
+ls *.md docs/*.md
+# Shows: README.md, TEST_EXECUTION_REPORT.md
+#        docs/ARCHITECTURE.md, docs/DEPLOYMENT.md, docs/DOCUMENTATION_ACCESS.md
+#        docs/EXAMPLES.md, docs/TECHNICAL_GUIDE.md
 ```
 
 ### Complete Documentation
@@ -83,11 +89,11 @@ git show docs/complete-documentation:docs/TESTING_GUIDE.md
 
 | Aspect | Master Branch | docs/complete-documentation |
 |--------|---------------|----------------------------|
-| **MD Files** | 5 essential | 5 + 14 additional |
+| **MD Files** | 7 essential | 7 + 14 additional |
 | **Purpose** | Technical evaluation | Complete reference |
 | **Target** | Evaluators | Developers, Maintainers |
 | **Focus** | Quick overview | Deep dive |
-| **Size** | ~1,500 lines | ~6,500 lines |
+| **Size** | ~2,000 lines | ~7,000 lines |
 
 ---
 
@@ -97,12 +103,14 @@ git show docs/complete-documentation:docs/TESTING_GUIDE.md
 
 **Master Branch**:
 1. `README.md` - Understand what the library does
-2. `TECHNICAL_GUIDE.md` - See Java 21 features and architecture
-3. `EXAMPLES.md` - Review usage examples
+2. Run `NotificationLibraryDemo.java` - Interactive functional demonstration
+3. `docs/TECHNICAL_GUIDE.md` - See Java 21 features and architecture
+4. `docs/EXAMPLES.md` - Review usage examples
 
 **Optional** (if more time):
-4. `ARCHITECTURE.md` - Deep dive into design decisions
-5. `DEPLOYMENT.md` - Test the implementation
+5. `TEST_EXECUTION_REPORT.md` - Test execution guide
+6. `docs/ARCHITECTURE.md` - Deep dive into design decisions
+7. `docs/DEPLOYMENT.md` - Test the implementation
 
 ### For Technical Deep Dive (1-2 hours)
 
@@ -146,19 +154,19 @@ git show docs/complete-documentation:docs/TESTING_GUIDE.md
 ## 🔍 Finding Specific Information
 
 ### Architecture & Design
-- **Master**: `ARCHITECTURE.md`
+- **Master**: `docs/ARCHITECTURE.md`
 - **Extended**: `docs/PROJECT_SUMMARY.md`, `docs/BEST_PRACTICES_ANALYSIS.md`
 
 ### Code Examples
-- **Master**: `EXAMPLES.md`
+- **Master**: `docs/EXAMPLES.md`, `NotificationLibraryDemo.java`
 - **Extended**: `docs/ADVANCED_JAVA_EXAMPLES.md`
 
 ### Testing
-- **Master**: See `README.md` testing section
+- **Master**: `TEST_EXECUTION_REPORT.md`, `README.md` testing section
 - **Extended**: `docs/TESTING_GUIDE.md`, `docs/TESTING_CHEAT_SHEET.md`
 
 ### Installation & Deployment
-- **Master**: `DEPLOYMENT.md`
+- **Master**: `docs/DEPLOYMENT.md`
 - **Extended**: `docs/DOCKER_TEST_RESULTS.md`
 
 ### Project Status & Validation
@@ -185,5 +193,12 @@ If you need specific information:
 
 **Note**: This documentation strategy ensures evaluators see a clean, professional codebase while preserving all development documentation for reference.
 
+**Highlights in Master Branch**:
+- ✅ Interactive functional demo (`NotificationLibraryDemo.java`)
+- ✅ Java 21 features: Records, Virtual Threads, Streams, Switch Expressions
+- ✅ Multi-channel notifications with immutable updates
+- ✅ SLF4J/Logback structured logging
+- ✅ Comprehensive testing (unit + functional)
+
 **Current Branch**: `master`  
-**Last Updated**: January 31, 2026
+**Last Updated**: January 30, 2026
